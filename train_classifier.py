@@ -1,12 +1,66 @@
+# import libraries
 import sys
+import pandas as pd
+from sqlalchemy import create_engine
+import pickle
 
+import nltk
+nltk.download(['punkt', 'wordnet'])
+
+import re
+import numpy as np
+import pandas as pd
+from string import punctuation
+
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.metrics import classification_report
+from sklearn.model_selection import GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
 
 def load_data(database_filepath):
-    pass
+    # load data from database
+    db_connection = ''.join(['sqlite:///', database_filepath])
+    engine = create_engine(db_connection)
+    table_name = database_filepath.split('.')[0]
+    df = pd.read_sql_table(table_name, engine)
+
+    # prepare model data
+    X = df.message.values
+    Y_columns = list(set(df.columns) - {'id', 'message', 'original', 'genre'})
+    Y = df[Y_columns].values
+    return X, Y, Y_columns
 
 
 def tokenize(text):
-    pass
+    # prepare url check
+    url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    url_match = re.compile(url_regex).match
+    # instantiate lemmatizer
+    lemmatizer = WordNetLemmatizer()
+    # prepare check for stop words and punctuation
+    stop_words = stopwords.words('english')
+    punctuation = list(punctuation)
+
+    detected_urls = re.findall(url_regex, text)
+    for url in detected_urls:
+        text = text.replace(url, "urlplaceholder")
+
+    tokens = word_tokenize(text)
+    lemmatizer = WordNetLemmatizer()
+
+    clean_tokens = [lemmatizer.lemmatize(tok).lower().strip() for tok \
+                    in tokens if tok not in stop_words and tok not in punctuation]
+
+    return clean_tokens
 
 
 def build_model():
