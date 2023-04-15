@@ -35,7 +35,7 @@ def load_data(database_filepath):
 
     # prepare model data
     X = df.message.values
-    Y_columns = list(set(df.columns) - {'id', 'message', 'original', 'genre'})
+    Y_columns = df.columns[4:]
     Y = df[Y_columns].values
     return X, Y, Y_columns
 
