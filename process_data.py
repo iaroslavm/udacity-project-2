@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 def load_data(messages_filepath, categories_filepath):
     # load messages dataset
     messages = pd.read_csv(messages_filepath).drop_duplicates()
-    categories = pd.read_csv('categories.csv').drop_duplicates()
+    categories = pd.read_csv(categories_filepath).drop_duplicates()
 
     # merge datasets
     df = messages.merge(categories, how='inner', on='id').drop_duplicates()
