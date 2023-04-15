@@ -10,7 +10,7 @@ nltk.download(['punkt', 'wordnet'])
 import re
 import numpy as np
 import pandas as pd
-from string import punctuation
+from string import punctuation as punkt
 
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
@@ -30,7 +30,7 @@ def load_data(database_filepath):
     # load data from database
     db_connection = ''.join(['sqlite:///', database_filepath])
     engine = create_engine(db_connection)
-    table_name = database_filepath.split('.')[0]
+    table_name = database_filepath.split('.')[2].split('/')[2]
     df = pd.read_sql_table(table_name, engine)
 
     # prepare model data
@@ -48,7 +48,7 @@ def tokenize(text):
     lemmatizer = WordNetLemmatizer()
     # prepare check for stop words and punctuation
     stop_words = stopwords.words('english')
-    punctuation = list(punctuation)
+    punctuation = list(punkt)
 
     detected_urls = re.findall(url_regex, text)
     for url in detected_urls:
