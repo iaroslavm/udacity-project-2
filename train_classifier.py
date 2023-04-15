@@ -64,14 +64,30 @@ def tokenize(text):
 
 
 def build_model():
-    pass
+    # build pipeline
+    pipeline = Pipeline([
+        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+    ])
+    return pipeline
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    # predict on test data
+    Y_pred = model.predict(X_test)
+
+    classification_reports = []
+
+    for i in range(0, len(category_names)):
+        classification_reports.append(classification_report(Y_test[:, i], Y_pred[:, i]))
+
+    return classification_reports
 
 
 def save_model(model, model_filepath):
+    # export model with decision tree classifier as a pickle
+    pickle.dump(model, open(model_filepath, 'wb'))
     pass
 
 
