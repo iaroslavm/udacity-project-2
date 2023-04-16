@@ -39,28 +39,25 @@ model = joblib.load("../models/classifier.pkl")
 @app.route('/index')
 def index():
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
 
     # calculate the frequency of the categories
-    categories_frequency = sum(df[df.columns[5:]].values)/len(df)*100
-    category_frequency_dict = dict(zip(df.columns[5:], categories_frequency))
-    categories_list = list(category_frequency_dict.keys())
-    freq_list = list(category_frequency_dict.values())
-    most_frequent_category = list(category_frequency_dict.keys())[0]
+    categories_frequency = df[df.columns[5:]].sum()/len(df)*100
+    categories_frequency_sorted = categories_frequency.sort_values(ascending=False)
+    categories_list = list(categories_frequency_sorted.index)
+    most_frequent_category = categories_frequency_sorted.index[0]
 
     # calculate what categories correlate the most with most frequent category
     corr_matrix = df[df.columns[6:]].corr()
     # remove columns that are not correlated with others
     corr_matrix = corr_matrix[corr_matrix.sum() != 0][corr_matrix.columns[corr_matrix.sum() != 0]]
     corr_matrix = corr_matrix[most_frequent_category]
-    corr_matrix = corr_matrix.drop(most_frequent_category)
+    correlations = corr_matrix.drop(most_frequent_category)
     correlated_categories = list(corr_matrix.index)
-    correlations = list(corr_matrix.values)
+
 
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
@@ -84,7 +81,7 @@ def index():
             'data': [
                 Bar(
                     x=categories_list,
-                    y=freq_list
+                    y=categories_frequency_sorted
                 )
             ],
 
