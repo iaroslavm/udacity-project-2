@@ -35,7 +35,7 @@ def clean_data(df):
 def save_data(df, database_filename):
     # create sql engine
     db_connection = ''.join(['sqlite:///', database_filename])
-    table_name = database_filename.split('.')[0]
+    table_name = 'DisasterResponseTable'
     engine = create_engine(db_connection)
     if not engine.has_table(table_name):
         df.to_sql(table_name, engine, index=False)
