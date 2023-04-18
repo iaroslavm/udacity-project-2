@@ -23,14 +23,12 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.metrics import classification_report
-from sklearn.model_selection import GridSearchCV
-from sklearn.tree import DecisionTreeClassifier
 
 def load_data(database_filepath):
     # load data from database
     db_connection = ''.join(['sqlite:///', database_filepath])
     engine = create_engine(db_connection)
-    table_name = database_filepath.split('.')[2].split('/')[2]
+    table_name = 'DisasterResponseTable'
     df = pd.read_sql_table(table_name, engine)
 
     # prepare model data
@@ -43,9 +41,6 @@ def load_data(database_filepath):
 def tokenize(text):
     # prepare url check
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    url_match = re.compile(url_regex).match
-    # instantiate lemmatizer
-    lemmatizer = WordNetLemmatizer()
     # prepare check for stop words and punctuation
     stop_words = stopwords.words('english')
     punctuation = list(punkt)
@@ -94,6 +89,7 @@ def save_model(model, model_filepath):
 def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
+        database_filepath = database_filepath.split('/')[1].split('.')[0]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
