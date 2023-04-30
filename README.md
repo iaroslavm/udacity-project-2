@@ -14,3 +14,11 @@ Summary: the projects aims to create an algorithm to identify messages that are 
     `python app/run.py`
 
 3. Go to http://0.0.0.0:3001/
+
+
+### Explanation of Files
+
+1. process_data.py runs ETL pipeline: loads data from csv file, cleans it and saves the selected information into the SQL database.
+2. train_classifier.py runs ML pipeline, loads previously cleaned data, trains a model to predict category of the disaster related message using random forest classifier.
+3. run.py is a flask application that generates the landing page of the project, shows descriptive charts and allows to test a message using the trained model.
+4. go.html and master.htl are htl scripts that are used by run.py app to generate the landing page of the project.
