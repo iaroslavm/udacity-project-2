@@ -8,7 +8,6 @@ import nltk
 nltk.download(['punkt', 'wordnet'])
 
 import re
-import numpy as np
 import pandas as pd
 from string import punctuation as punkt
 
@@ -24,7 +23,19 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.metrics import classification_report
 
+
 def load_data(database_filepath):
+    """Load messages from SQL database,
+    separate data into dependent and explanatory variables
+
+    Parameters:
+        database_filepath (str): path to SQL database
+
+    Returns:
+        X: explanatory variable
+        Y: dependent variables
+        Y_columns: names of dependent variables
+    """
     # load data from database
     db_connection = ''.join(['sqlite:///', database_filepath])
     engine = create_engine(db_connection)
@@ -39,6 +50,14 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """Tokenize function
+
+    Parameters:
+        text (str): text message to tokenize
+
+    Returns:
+        clean_tokens: clean tokens derived from the text message
+    """
     # prepare url check
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     # prepare check for stop words and punctuation
@@ -59,6 +78,11 @@ def tokenize(text):
 
 
 def build_model():
+    """Build classification pipeline
+
+    Returns:
+        pipeline: model object
+    """
     # build pipeline
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
@@ -69,6 +93,17 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """Use test data to estimate model
+
+    Parameters:
+        model (model object): classification pipeline
+        X_test: test explanatory variable
+        Y_test: test dependent variables
+        category_names: names of message categories
+
+    Returns:
+        classification_reports: classification reports for each category
+    """
     # predict on test data
     Y_pred = model.predict(X_test)
 
@@ -81,6 +116,13 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """Saving estimated model into pickle
+
+    Parameters:
+        model (model object): estimate model
+        model_filepath: destination of the pickle file
+
+    """
     # export model with decision tree classifier as a pickle
     pickle.dump(model, open(model_filepath, 'wb'))
     pass

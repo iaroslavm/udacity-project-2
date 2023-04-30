@@ -4,7 +4,15 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
-    # load messages dataset
+    """Load messages dataset and return them as df
+
+    Parameters:
+        messages_filepath (str): location of the messages csv
+        categories_filepath (str):location of the categories csv
+
+    Returns:
+        df: merged messages=categories dataframe
+    """
     messages = pd.read_csv(messages_filepath).drop_duplicates()
     categories = pd.read_csv(categories_filepath).drop_duplicates()
 
@@ -14,7 +22,14 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    """Clean merged dataframe with messages and categories and remove possible duplicates
 
+    Parameters:
+        df (pandas.DataFrame): dataframe containing messages and categories
+
+    Returns:
+        df: cleaned dataframe without duplicates
+    """
     # find names of categories
     categories_list = [cat.split('-')[0] for cat in df['categories'].values[0].split(';')]
     # expand categories into separate columns
@@ -33,6 +48,12 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    """Save clean dataframe into SQL database
+
+    Parameters:
+        df (pandas.DataFrame): cleaned dataframe
+        database_filename (str): location of the SQL database
+    """
     # create sql engine
     db_connection = ''.join(['sqlite:///', database_filename])
     table_name = 'DisasterResponseTable'
