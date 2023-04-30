@@ -18,12 +18,11 @@ def load_data(messages_filepath, categories_filepath):
 
     # merge datasets
     df = messages.merge(categories, how='inner', on='id').drop_duplicates()
-    df['related'] = df['related'].astype('str').str.replace('2', '1')
     return df
 
 
 def clean_data(df):
-    """Clean merged dataframe with messages and categories and remove possible duplicates
+    """Clean merged dataframe with messages and split categories into separate columns
 
     Parameters:
         df (pandas.DataFrame): dataframe containing messages and categories
@@ -45,6 +44,7 @@ def clean_data(df):
 
     # drop initial categories column and remove duplicates
     df = df.drop(['categories'], axis=1).drop_duplicates()
+    df['related'] = df['related'].astype('str').str.replace('2', '1').astype(int)
     return df
 
 
@@ -59,9 +59,8 @@ def save_data(df, database_filename):
     db_connection = ''.join(['sqlite:///', database_filename])
     table_name = 'DisasterResponseTable'
     engine = create_engine(db_connection)
-    if not engine.has_table(table_name):
-        df.to_sql(table_name, engine, index=False)
-    pass
+    df.to_sql(table_name, engine, if_exists='replace',  index=False)
+    print('Data saved into ' + table_name)
 
 
 def main():
