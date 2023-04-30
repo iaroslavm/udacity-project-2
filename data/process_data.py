@@ -18,6 +18,7 @@ def load_data(messages_filepath, categories_filepath):
 
     # merge datasets
     df = messages.merge(categories, how='inner', on='id').drop_duplicates()
+    df['related'] = df['related'].astype('str').str.replace('2', '1')
     return df
 
 
