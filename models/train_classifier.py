@@ -1,6 +1,7 @@
 # import libraries
 import sys
 import pandas as pd
+import numpy as np
 from sqlalchemy import create_engine
 import pickle
 
@@ -22,6 +23,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.metrics import classification_report
+from sklearn.model_selection import GridSearchCV
 
 
 def load_data(database_filepath):
@@ -92,6 +94,22 @@ def build_model():
     return pipeline
 
 
+def use_grid_search(initial_pipiline):
+    """Initialize grid search
+
+    Returns:
+        cv: grid search object
+    """
+    parameters = {
+        'clf__estimator__n_estimators': list(10 * np.array([2, 3])),
+        'clf__estimator__max_depth': list(10 * np.array([2, 3]))
+    }
+
+    cv = GridSearchCV(initial_pipiline, param_grid=parameters)
+
+    return cv
+
+
 def evaluate_model(model, X_test, Y_test, category_names):
     """Use test data to estimate model
 
@@ -143,6 +161,15 @@ def main():
 
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
+
+        print('Initiating Grid Search to improve parameters...')
+        cv = use_grid_search(model)
+
+        print('Training new model...')
+        cv.fit(X_train, Y_train)
+
+        print('Evaluating grid search results...')
+        evaluate_model(cv, X_test, Y_test, category_names)
 
         print('Saving model...\n    MODEL: {}'.format(model_filepath))
         save_model(model, model_filepath)
